@@ -2,7 +2,6 @@ import { Link, useParams } from 'react-router-dom'
 import { PRODUCTS } from '../data/products'
 import ProductGallery from '../components/ProductGallery'
 import SpecsTable from '../components/SpecsTable'
-import StatusBadge from '../components/StatusBadge'
 
 export default function ProductDetailPage() {
   const { id } = useParams()
@@ -35,10 +34,8 @@ export default function ProductDetailPage() {
         <div>
           <div className="flex items-start justify-between gap-3">
             <h1 className="text-2xl font-bold tracking-tight text-gray-900">{product.name}</h1>
-            <StatusBadge status={product.status} />
           </div>
           <p className="mt-1 text-sm text-gray-600">SKU: {product.sku}</p>
-          {product.price != null && <p className="mt-1 text-sm text-gray-900 font-medium">${product.price.toFixed(2)}</p>}
           {product.shortDescription && <p className="mt-3 text-gray-700">{product.shortDescription}</p>}
 
           {/* Variants */}
@@ -119,4 +116,3 @@ export default function ProductDetailPage() {
     </div>
   )
 }
-

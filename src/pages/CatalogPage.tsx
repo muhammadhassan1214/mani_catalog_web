@@ -14,7 +14,6 @@ import PerPageSelect from '../components/PerPageSelect'
 function sortProducts(items: Product[], sort: string) {
   const byDate = (p: Product) => new Date(p.createdAt).getTime()
   const byName = (p: Product) => p.name.toLowerCase()
-  const byPrice = (p: Product) => p.price ?? 0
   switch (sort) {
     case 'ALPHA_DESC':
       return [...items].sort((a, b) => byName(b).localeCompare(byName(a)))
@@ -22,10 +21,6 @@ function sortProducts(items: Product[], sort: string) {
       return [...items].sort((a, b) => byDate(b) - byDate(a))
     case 'DATE_OLD':
       return [...items].sort((a, b) => byDate(a) - byDate(b))
-    case 'PRICE_ASC':
-      return [...items].sort((a, b) => byPrice(a) - byPrice(b))
-    case 'PRICE_DESC':
-      return [...items].sort((a, b) => byPrice(b) - byPrice(a))
     case 'ALPHA_ASC':
     default:
       return [...items].sort((a, b) => byName(a).localeCompare(byName(b)))
@@ -36,7 +31,6 @@ export default function CatalogPage() {
   const [params] = useSearchParams()
   const q = params.get('q') || ''
   const category = params.get('category')
-  const status = params.get('status')
   const sort = params.get('sort') || 'ALPHA_ASC'
   const view = (params.get('view') as 'grid' | 'list') || 'grid'
   const page = Number(params.get('page') || '1')
@@ -46,10 +40,9 @@ export default function CatalogPage() {
     let items = PRODUCTS
     if (q) items = searchProducts(items, q)
     if (category && category !== 'ALL') items = items.filter((p) => p.category === category)
-    if (status && status !== 'ALL') items = items.filter((p) => p.status === status)
     items = sortProducts(items, sort)
     return items
-  }, [q, category, status, sort])
+  }, [q, category, sort])
 
   const total = filtered.length
   const start = (page - 1) * perPage

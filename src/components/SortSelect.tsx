@@ -5,8 +5,6 @@ const options = [
   { value: 'ALPHA_DESC', label: 'Alphabetical (Z–A)' },
   { value: 'DATE_NEW', label: 'Date (Newest)' },
   { value: 'DATE_OLD', label: 'Date (Oldest)' },
-  { value: 'PRICE_ASC', label: 'Price (Low to High)' },
-  { value: 'PRICE_DESC', label: 'Price (High to Low)' },
 ]
 
 export default function SortSelect() {
@@ -29,4 +27,3 @@ export default function SortSelect() {
     </label>
   )
 }
-

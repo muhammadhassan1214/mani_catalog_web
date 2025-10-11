@@ -28,6 +28,7 @@ function Header() {
         <nav aria-label="Main" className="hidden sm:flex items-center gap-6">
           <NavLink to="/" className={({isActive}) => `text-sm font-medium ${isActive ? 'text-brand-700' : 'text-gray-700 hover:text-gray-900'}`}>Home</NavLink>
           <NavLink to="/catalog" className={({isActive}) => `text-sm font-medium ${isActive ? 'text-brand-700' : 'text-gray-700 hover:text-gray-900'}`}>Catalog</NavLink>
+          <NavLink to="/contact" className={({isActive}) => `text-sm font-medium ${isActive ? 'text-brand-700' : 'text-gray-700 hover:text-gray-900'}`}>Contact</NavLink>
         </nav>
         <form onSubmit={onSubmit} role="search" className="hidden md:flex items-center gap-2 w-1/3" aria-label="Site-wide search">
           <label htmlFor="q" className="sr-only">Search products</label>
@@ -52,6 +53,7 @@ function Footer() {
         <p>© {new Date().getFullYear()} Beauty Catalog. All rights reserved.</p>
         <nav className="flex items-center gap-4" aria-label="Footer">
           <Link className="hover:text-gray-900" to="/catalog">All Products</Link>
+          <Link className="hover:text-gray-900" to="/contact">Contact</Link>
           <a className="hover:text-gray-900" href="#top">Back to top</a>
         </nav>
       </div>

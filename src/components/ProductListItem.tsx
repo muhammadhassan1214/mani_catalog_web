@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom'
-import StatusBadge from './StatusBadge'
 import type { Product } from '../types'
 
 export default function ProductListItem({ product }: { product: Product }) {
@@ -18,12 +17,10 @@ export default function ProductListItem({ product }: { product: Product }) {
           <h3 className="text-base font-semibold text-gray-900 truncate">
             <Link to={`/product/${product.id}`} className="hover:underline">{product.name}</Link>
           </h3>
-          <StatusBadge status={product.status} />
         </div>
         <div className="mt-1 text-xs text-gray-500 flex flex-wrap gap-3">
           <span>SKU: {product.sku}</span>
           <span>Category: {product.category}</span>
-          {product.price != null && <span>Price: ${product.price.toFixed(2)}</span>}
         </div>
         {product.shortDescription && (
           <p className="mt-2 text-sm text-gray-600 line-clamp-2">{product.shortDescription}</p>
@@ -35,4 +32,3 @@ export default function ProductListItem({ product }: { product: Product }) {
     </article>
   )
 }
-
