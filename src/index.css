@@ -1,0 +1,30 @@
+@import "tailwindcss";
+
+/* Tailwind v4 theme extensions via CSS */
+@theme {
+  --color-brand-50:  #f5f7ff;
+  --color-brand-100: #eaeefe;
+  --color-brand-200: #cfd8fd;
+  --color-brand-300: #a7b8fb;
+  --color-brand-400: #7b92f8;
+  --color-brand-500: #5b75f6;
+  --color-brand-600: #3e58e8;
+  --color-brand-700: #2f44c5;
+  --color-brand-800: #2839a0;
+  --color-brand-900: #233280;
+}
+
+/* Base resets */
+html { scroll-behavior: smooth; }
+
+/* Simple container utility (CSS-only) */
+.container-safe {
+  max-width: 80rem; /* 1280px */
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+@media (min-width: 640px) { .container-safe { padding-left: 1rem; padding-right: 1rem; } }
+@media (min-width: 768px) { .container-safe { padding-left: 1.5rem; padding-right: 1.5rem; } }
+@media (min-width: 1024px) { .container-safe { padding-left: 2rem; padding-right: 2rem; } }
