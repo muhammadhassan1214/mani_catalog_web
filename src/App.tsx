@@ -27,9 +27,9 @@ function Header() {
         </Link>
         <nav aria-label="Main" className="hidden sm:flex items-center gap-6">
           <NavLink to="/" className={({isActive}) => `text-sm font-medium ${isActive ? 'text-brand-700' : 'text-gray-700 hover:text-gray-900'}`}>Home</NavLink>
-          <NavLink to="/catalog" className={({isActive}) => `text-sm font-medium ${isActive ? 'text-brand-700' : 'text-gray-700 hover:text-gray-900'}`}>Catalog</NavLink>
           <NavLink to="/about" className={({isActive}) => `text-sm font-medium ${isActive ? 'text-brand-700' : 'text-gray-700 hover:text-gray-900'}`}>About</NavLink>
           <NavLink to="/contact" className={({isActive}) => `text-sm font-medium ${isActive ? 'text-brand-700' : 'text-gray-700 hover:text-gray-900'}`}>Contact</NavLink>
+          <NavLink to="/catalog" className={({isActive}) => `text-sm font-medium ${isActive ? 'text-brand-700' : 'text-gray-700 hover:text-gray-900'}`}>Catalog</NavLink>
         </nav>
         <form onSubmit={onSubmit} role="search" className="hidden md:flex items-center gap-2 w-1/3" aria-label="Site-wide search">
           <label htmlFor="q" className="sr-only">Search products</label>
@@ -57,9 +57,10 @@ function Footer() {
       <div className="container-safe py-8 text-sm text-gray-600 flex flex-col sm:flex-row items-center justify-between gap-3">
         <p>© {new Date().getFullYear()} Beauty Catalog. All rights reserved.</p>
         <nav className="flex items-center gap-4" aria-label="Footer">
-          <Link className="hover:text-gray-900" to="/catalog">All Products</Link>
+          <Link className="hover:text-gray-900" to="/">Home</Link>
           <Link className="hover:text-gray-900" to="/about">About</Link>
           <Link className="hover:text-gray-900" to="/contact">Contact</Link>
+          <Link className="hover:text-gray-900" to="/catalog">All Products</Link>
           <button type="button" onClick={scrollToTop} className="hover:text-gray-900">Back to top</button>
         </nav>
       </div>
