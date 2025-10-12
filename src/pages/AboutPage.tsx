@@ -5,7 +5,7 @@ export default function AboutPage() {
     <div>
       <header className="rounded-xl bg-gradient-to-br from-brand-50 to-white border p-6 sm:p-10">
         <div className="max-w-3xl">
-          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-gray-900">About Beauty Catalog</h1>
+          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-gray-900">About Alisha Beauties</h1>
           <p className="mt-3 text-lg text-gray-600">
             We manufacture and curate high‑quality products across Orthodontic, Dental, Beauty Care, Eyelash, Jewellery, and Surgical categories. Our focus is consistent quality, on‑time delivery, and collaborative development.
           </p>

@@ -21,7 +21,7 @@ function Header() {
         <Link to="/" className="flex items-center gap-2 group" aria-label="Go to homepage">
           <Boxes className="size-7 text-brand-700 group-hover:text-brand-800" aria-hidden="true" />
           <div className="leading-tight">
-            <div className="text-lg font-semibold tracking-tight text-gray-900">Beauty Catalog</div>
+            <div className="text-lg font-semibold tracking-tight text-gray-900">Alisha Beauties Catalog</div>
             <div className="text-xs text-gray-500">Manufacturing Products</div>
           </div>
         </Link>
@@ -55,7 +55,7 @@ function Footer() {
   return (
     <footer className="border-t bg-white">
       <div className="container-safe py-8 text-sm text-gray-600 flex flex-col sm:flex-row items-center justify-between gap-3">
-        <p>© {new Date().getFullYear()} Beauty Catalog. All rights reserved.</p>
+        <p>© {new Date().getFullYear()} Alisha Beauties Catalog. All rights reserved.</p>
         <nav className="flex items-center gap-4" aria-label="Footer">
           <Link className="hover:text-gray-900" to="/">Home</Link>
           <Link className="hover:text-gray-900" to="/about">About</Link>
