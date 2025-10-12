@@ -28,6 +28,7 @@ function Header() {
         <nav aria-label="Main" className="hidden sm:flex items-center gap-6">
           <NavLink to="/" className={({isActive}) => `text-sm font-medium ${isActive ? 'text-brand-700' : 'text-gray-700 hover:text-gray-900'}`}>Home</NavLink>
           <NavLink to="/catalog" className={({isActive}) => `text-sm font-medium ${isActive ? 'text-brand-700' : 'text-gray-700 hover:text-gray-900'}`}>Catalog</NavLink>
+          <NavLink to="/about" className={({isActive}) => `text-sm font-medium ${isActive ? 'text-brand-700' : 'text-gray-700 hover:text-gray-900'}`}>About</NavLink>
           <NavLink to="/contact" className={({isActive}) => `text-sm font-medium ${isActive ? 'text-brand-700' : 'text-gray-700 hover:text-gray-900'}`}>Contact</NavLink>
         </nav>
         <form onSubmit={onSubmit} role="search" className="hidden md:flex items-center gap-2 w-1/3" aria-label="Site-wide search">
@@ -47,14 +48,19 @@ function Header() {
 }
 
 function Footer() {
+  function scrollToTop() {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
   return (
     <footer className="border-t bg-white">
       <div className="container-safe py-8 text-sm text-gray-600 flex flex-col sm:flex-row items-center justify-between gap-3">
         <p>© {new Date().getFullYear()} Beauty Catalog. All rights reserved.</p>
         <nav className="flex items-center gap-4" aria-label="Footer">
           <Link className="hover:text-gray-900" to="/catalog">All Products</Link>
+          <Link className="hover:text-gray-900" to="/about">About</Link>
           <Link className="hover:text-gray-900" to="/contact">Contact</Link>
-          <a className="hover:text-gray-900" href="#top">Back to top</a>
+          <button type="button" onClick={scrollToTop} className="hover:text-gray-900">Back to top</button>
         </nav>
       </div>
     </footer>
@@ -62,11 +68,21 @@ function Footer() {
 }
 
 export default function App() {
+  function skipToContent(e: React.MouseEvent<HTMLButtonElement>) {
+    e.preventDefault()
+    const main = document.getElementById('main') as HTMLElement | null
+    if (main) {
+      main.focus()
+      const y = main.getBoundingClientRect().top + window.scrollY
+      window.scrollTo({ top: Math.max(0, y - 8), behavior: 'smooth' })
+    }
+  }
+
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
-      <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 bg-white text-gray-900 px-3 py-2 rounded shadow">Skip to content</a>
+    <div id="top" className="min-h-screen flex flex-col bg-gray-50">
+      <button onClick={skipToContent} className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 bg-white text-gray-900 px-3 py-2 rounded shadow">Skip to content</button>
       <Header />
-      <main id="main" className="flex-1">
+      <main id="main" tabIndex={-1} className="flex-1">
         <div className="container-safe py-6">
           <Outlet />
         </div>

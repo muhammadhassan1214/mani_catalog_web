@@ -8,6 +8,7 @@ import HomePage from './pages/HomePage'
 import ProductDetailPage from './pages/ProductDetailPage'
 import NotFoundPage from './pages/NotFoundPage'
 import ContactPage from './pages/ContactPage'
+import AboutPage from './pages/AboutPage'
 
 const router = createBrowserRouter([
   {
@@ -18,6 +19,7 @@ const router = createBrowserRouter([
       { path: 'catalog', element: <CatalogPage /> },
       { path: 'product/:id', element: <ProductDetailPage /> },
       { path: 'contact', element: <ContactPage /> },
+      { path: 'about', element: <AboutPage /> },
       { path: '*', element: <NotFoundPage /> },
     ],
   },
