@@ -9,7 +9,7 @@ export default function HomePage() {
       <section className="rounded-xl bg-gradient-to-br from-brand-50 to-white border p-6 sm:p-10">
         <div className="max-w-3xl">
           <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-gray-900">Professional Product Catalog</h1>
-          <p className="mt-3 text-lg text-gray-600">Explore our manufacturing catalog across Orthodontic, Dental, Beauty Care, Eyelash, Jewellery, and Surgical categories.</p>
+          <p className="mt-3 text-lg text-gray-600">Explore our manufacturing catalog across Beauty Care and Eyelash categories.</p>
           <div className="mt-5 flex flex-wrap items-center gap-3">
             <Link to="/catalog" className="inline-flex items-center rounded-md bg-brand-700 px-4 py-2 text-sm font-medium text-white shadow hover:bg-brand-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500">Browse Catalog</Link>
             <a href="#categories" className="text-sm font-medium text-brand-700 hover:text-brand-800">Browse by Category →</a>

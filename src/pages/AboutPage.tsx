@@ -7,7 +7,7 @@ export default function AboutPage() {
         <div className="max-w-3xl">
           <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-gray-900">About Alisha Beauties</h1>
           <p className="mt-3 text-lg text-gray-600">
-            We manufacture and curate high‑quality products across Orthodontic, Dental, Beauty Care, Eyelash, Jewellery, and Surgical categories. Our focus is consistent quality, on‑time delivery, and collaborative development.
+            We manufacture and curate high‑quality products across Beauty Care and Eyelash categories. Our focus is consistent quality, on‑time delivery, and collaborative development.
           </p>
         </div>
       </header>
@@ -103,7 +103,7 @@ export default function AboutPage() {
             <span className="absolute left-0 top-2 h-2 w-2 rounded-full bg-brand-700" aria-hidden="true" />
             <div className="rounded-lg border bg-white p-4 shadow-sm">
               <p className="text-sm font-medium text-gray-900">2019 — Expanded categories</p>
-              <p className="mt-1 text-sm text-gray-700">Added dental and orthodontic instruments to the catalog.</p>
+              <p className="mt-1 text-sm text-gray-700">Added eyelash products to the catalog.</p>
             </div>
           </li>
           <li className="relative pl-6">

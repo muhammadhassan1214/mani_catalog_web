@@ -1,12 +1,34 @@
 import { useState } from 'react'
+import { submitContactMessage } from '../lib/api'
+import { useToast } from '../components/ToastProvider'
 
 export default function ContactPage() {
   const [submitted, setSubmitted] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const { notify } = useToast()
 
-  function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
-    // Placeholder submit — wire to backend or email service later
-    setSubmitted(true)
+    if (loading) return
+    const fd = new FormData(e.currentTarget)
+    const name = String(fd.get('name') || '')
+    const email = String(fd.get('email') || '')
+    const company = String(fd.get('company') || '') || undefined
+    const message = String(fd.get('message') || '')
+    if (!name || !email || !message) {
+      notify('Please fill in required fields', 'error')
+      return
+    }
+    setLoading(true)
+    try {
+      await submitContactMessage({ name, email, company, message })
+      setSubmitted(true)
+      notify('Message sent', 'success')
+    } catch (err) {
+      notify('Failed to send message', 'error')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -42,8 +64,8 @@ export default function ContactPage() {
                 </div>
               </div>
               <div className="mt-4">
-                <button type="submit" className="inline-flex items-center rounded-md bg-brand-700 px-4 py-2 text-sm font-medium text-white shadow hover:bg-brand-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500">
-                  Send message
+                <button type="submit" disabled={loading} className="inline-flex items-center rounded-md bg-brand-700 px-4 py-2 text-sm font-medium text-white shadow hover:bg-brand-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 disabled:opacity-60">
+                  {loading ? 'Sending…' : 'Send message'}
                 </button>
               </div>
             </form>
@@ -75,4 +97,3 @@ export default function ContactPage() {
     </div>
   )
 }
-

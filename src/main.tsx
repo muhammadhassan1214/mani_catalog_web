@@ -9,6 +9,8 @@ import ProductDetailPage from './pages/ProductDetailPage'
 import NotFoundPage from './pages/NotFoundPage'
 import ContactPage from './pages/ContactPage'
 import AboutPage from './pages/AboutPage'
+import ToastProvider from './components/ToastProvider'
+import AdminPage from './pages/AdminPage'
 
 const router = createBrowserRouter([
   {
@@ -18,6 +20,7 @@ const router = createBrowserRouter([
       { index: true, element: <HomePage /> },
       { path: 'catalog', element: <CatalogPage /> },
       { path: 'product/:id', element: <ProductDetailPage /> },
+      { path: 'admin', element: <AdminPage /> },
       { path: 'contact', element: <ContactPage /> },
       { path: 'about', element: <AboutPage /> },
       { path: '*', element: <NotFoundPage /> },
@@ -27,6 +30,8 @@ const router = createBrowserRouter([
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <RouterProvider router={router} />
+    <ToastProvider>
+      <RouterProvider router={router} />
+    </ToastProvider>
   </StrictMode>,
 )

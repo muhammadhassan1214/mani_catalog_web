@@ -1,18 +1,52 @@
 import { Link, useParams } from 'react-router-dom'
-import { PRODUCTS } from '../data/products'
+import { useEffect, useState } from 'react'
 import ProductGallery from '../components/ProductGallery'
 import SpecsTable from '../components/SpecsTable'
+import type { Product } from '../types'
+import { fetchProduct } from '../lib/api'
+import { useToast } from '../components/ToastProvider'
 
 export default function ProductDetailPage() {
   const { id } = useParams()
-  const product = PRODUCTS.find((p) => p.id === id)
+  const { notify } = useToast()
+  const [product, setProduct] = useState<Product | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [refresh, setRefresh] = useState(0)
 
-  if (!product) {
+  useEffect(() => {
+    if (!id) return
+    const ac = new AbortController()
+    setLoading(true)
+    setError(null)
+    fetchProduct(id, ac.signal)
+      .then((p) => setProduct(p))
+      .catch((e) => {
+        if (e.name !== 'AbortError') {
+          const msg = e.message || 'Failed to load product'
+          setError(msg)
+          notify(msg, 'error')
+        }
+      })
+      .finally(() => setLoading(false))
+    return () => ac.abort()
+  }, [id, refresh])
+
+  if (loading) {
+    return <div className="text-sm text-gray-600">Loading…</div>
+  }
+
+  if (error === 'Not found' || !product) {
     return (
       <div className="text-center">
         <h1 className="text-2xl font-bold">Product not found</h1>
         <p className="mt-2 text-gray-600">The product you are looking for does not exist.</p>
-        <Link to="/catalog" className="mt-4 inline-block rounded-md bg-brand-700 px-4 py-2 text-sm font-medium text-white">Back to catalog</Link>
+        <div className="mt-4 flex items-center justify-center gap-3">
+          <Link to="/catalog" className="inline-block rounded-md bg-brand-700 px-4 py-2 text-sm font-medium text-white">Back to catalog</Link>
+          {error && error !== 'Not found' && (
+            <button onClick={() => setRefresh((x) => x + 1)} className="inline-block rounded-md border px-4 py-2 text-sm font-medium border-gray-300 text-gray-700 hover:bg-gray-50">Retry</button>
+          )}
+        </div>
       </div>
     )
   }

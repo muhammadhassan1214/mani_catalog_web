@@ -71,3 +71,82 @@ export default defineConfig([
   },
 ])
 ```
+
+## Backend (Express + SQLite)
+
+A minimal backend is included under `server/` to serve products and categories from a SQLite database.
+
+- Tech: Express, better-sqlite3 (no ORM), CORS enabled
+- DB file: `server/data.sqlite`
+- Seed data: `server/seed-data.json`
+
+### Quickstart (Windows)
+
+1) Install dependencies
+
+```bat
+npm install
+```
+
+2) Seed the database
+
+```bat
+npm run server:seed
+```
+
+3) Start the API server (default http://localhost:3000)
+
+```bat
+npm run server:start
+```
+
+Alternative port:
+
+```bat
+npm run server:start:3001
+```
+
+4) Smoke test the API
+
+```bat
+curl.exe -s http://localhost:3000/api/health
+curl.exe -s http://localhost:3000/api/categories
+curl.exe -s "http://localhost:3000/api/products?perPage=12&page=1"
+```
+
+Dev proxy: the Vite dev server proxies `/api` to `http://localhost:3000`. Start both servers during development and call `/api/...` from the frontend without CORS issues.
+
+### API Endpoints
+
+- GET `/api/health` → `{ ok: true, now: ISOString }`
+- GET `/api/categories` → `string[]`
+- GET `/api/products` → Paged results
+  - Query params:
+    - `q` (string): full-text search on name, sku, category, descriptions
+    - `category` (string | `ALL`)
+    - `sort` one of: `ALPHA_ASC` | `ALPHA_DESC` | `DATE_NEW` | `DATE_OLD` | `PRICE_ASC` | `PRICE_DESC`
+    - `page` (number, 1+), `perPage` (1-100)
+  - Response: `{ total, page, perPage, items: Product[] }`
+- GET `/api/products/:id` → `Product` or 404
+
+Product shape aligns with the frontend TypeScript `Product` interface (images/colors/packaging/pouches/specs serialized into JSON in the DB layer).
+
+### Troubleshooting
+
+- Port in use (EADDRINUSE): another server is running on port 3000. Either stop it or use `npm run server:start:3001`.
+- Re-seeding: run `npm run server:seed` to reload `seed-data.json` into `data.sqlite`.
+- SQLite file location: `server/data.sqlite`. You can delete it and re-run seed to reset.
+
+### Admin
+
+Set an admin password so protected endpoints work:
+
+1) Copy `.env.example` to `.env` and set `ADMIN_PASSWORD`.
+2) Restart the server.
+
+Admin UI: open `/admin` in the app. Enter the password to:
+- View messages (All/Unread/Read)
+- Mark messages read/unread or delete
+- Create a new product (minimal fields)
+
+The server protects admin endpoints by checking the `x-admin-password` header against `ADMIN_PASSWORD`.
