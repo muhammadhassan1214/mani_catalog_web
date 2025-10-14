@@ -11,10 +11,8 @@ export function getFuse(products: Product[]) {
     keys: [
       'name',
       'sku',
-      'category',
-      'description',
-      'shortDescription',
-      { name: 'specs', getFn: (p) => Object.values(p.specs || {}).join(' ') },
+      'baseCategory',
+      { name: 'description', getFn: (p) => [p.description?.size, p.description?.category, p.description?.finish, p.description?.details].filter(Boolean).join(' ') },
     ],
   })
   return fuse
@@ -25,4 +23,3 @@ export function searchProducts(products: Product[], query: string) {
   const f = getFuse(products)
   return f.search(query).map(r => r.item)
 }
-

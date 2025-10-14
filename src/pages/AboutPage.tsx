@@ -22,7 +22,7 @@ export default function AboutPage() {
           <p className="mt-1 text-sm text-gray-600">Active catalog SKUs</p>
         </div>
         <div className="rounded-lg border bg-white p-6 shadow-sm">
-          <p className="text-3xl font-bold text-gray-900">40+</p>
+          <p className="text-3xl font-bold text-gray-900">10+</p>
           <p className="mt-1 text-sm text-gray-600">Countries served</p>
         </div>
       </section>

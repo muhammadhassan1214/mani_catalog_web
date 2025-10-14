@@ -8,7 +8,8 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "server:seed": "node ./server/seed.js",
+    "server:seed": "node ./server/import-csv.js --reset \"D:/Beauty-Catelog/scraper/products_updated.csv\"",
+    "server:import:csv": "node ./server/import-csv.js \"D:/Beauty-Catelog/scraper/products_updated.csv\"",
     "server:start": "cross-env PORT=3000 node ./server/index.js",
     "server:start:3001": "cross-env PORT=3001 node ./server/index.js"
   },
@@ -22,7 +23,8 @@
     "lucide-react": "^0.545.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
-    "react-router-dom": "^7.9.4"
+    "react-router-dom": "^7.9.4",
+    "csv-parse": "^5.5.6"
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",

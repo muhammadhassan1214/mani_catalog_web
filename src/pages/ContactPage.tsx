@@ -24,7 +24,7 @@ export default function ContactPage() {
       await submitContactMessage({ name, email, company, message })
       setSubmitted(true)
       notify('Message sent', 'success')
-    } catch (err) {
+    } catch {
       notify('Failed to send message', 'error')
     } finally {
       setLoading(false)
@@ -77,15 +77,15 @@ export default function ContactPage() {
           <dl className="mt-3 space-y-3 text-sm text-gray-700">
             <div>
               <dt className="font-medium text-gray-900">Email</dt>
-              <dd><a href="mailto:info@example.com" className="text-brand-700 hover:text-brand-800">info@example.com</a></dd>
+              <dd><a href="mailto:ss.tahir888@gmail.com" className="text-brand-700 hover:text-brand-800">ss.tahir888@gmail.com</a></dd>
             </div>
             <div>
               <dt className="font-medium text-gray-900">Phone</dt>
-              <dd>+1 (555) 000-0000</dd>
+              <dd><a href="tel:+6282131671736" className="text-brand-700 hover:text-brand-800">+62 821 3167 1736</a></dd>
             </div>
             <div>
               <dt className="font-medium text-gray-900">Address</dt>
-              <dd>123 Industrial Ave, Suite 100, Your City, Country</dd>
+              <dd>RT 03-Rwlu-02, Desa Blimbing, Kecamatan Rejotangan, Tungagung, Jawa Timur, 66293, Indonesia</dd>
             </div>
             <div>
               <dt className="font-medium text-gray-900">Hours</dt>

@@ -15,10 +15,6 @@
       "images": [
         { "url": "https://placehold.co/1200x800.png?text=Beauty%20Scissors", "alt": "Beauty Scissors" }
       ],
-      "colors": [
-        { "sku": "BCS-010-GLD", "label": "Gold", "image": { "url": "https://placehold.co/300x300.png?text=Gold", "alt": "Gold" } },
-        { "sku": "BCS-010-RSE", "label": "Rose Gold", "image": { "url": "https://placehold.co/300x300.png?text=Rose%20Gold", "alt": "Rose Gold" } }
-      ],
       "createdAt": "2024-08-21T10:00:00.000Z",
       "specs": { "Finish": "Matte", "Length": "10cm" }
     },
@@ -33,14 +29,9 @@
       "images": [
         { "url": "https://placehold.co/1200x800.png?text=Eyelash%20Tweezer%20Curved", "alt": "Eyelash Tweezer Curved" }
       ],
-      "colors": [
-        { "sku": "ELT-200-PRP", "label": "Purple", "image": { "url": "https://placehold.co/300x300.png?text=Purple", "alt": "Purple" } },
-        { "sku": "ELT-200-BLU", "label": "Blue", "image": { "url": "https://placehold.co/300x300.png?text=Blue", "alt": "Blue" } }
-      ],
       "pouches": [ { "sku": "ELT-200-PCH", "label": "PVC Sleeve", "image": { "url": "https://placehold.co/300x200.png?text=PVC%20Sleeve", "alt": "PVC Sleeve" } } ],
       "createdAt": "2025-03-15T10:00:00.000Z",
       "specs": { "Material": "Stainless Steel", "Tip": "Curved" }
     }
   ]
 }
-

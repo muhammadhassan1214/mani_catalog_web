@@ -1,6 +1,7 @@
 import { Link, NavLink, Outlet, useNavigate, useSearchParams } from 'react-router-dom'
 import { Search, Boxes, PackageSearch } from 'lucide-react'
 import './index.css'
+import WhatsAppButton from './components/WhatsAppButton'
 
 function Header() {
   const navigate = useNavigate()
@@ -89,6 +90,7 @@ export default function App() {
         </div>
       </main>
       <Footer />
+      <WhatsAppButton />
     </div>
   )
 }

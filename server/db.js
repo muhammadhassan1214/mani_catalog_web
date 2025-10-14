@@ -28,19 +28,11 @@ export function ensureSchema() {
     CREATE TABLE IF NOT EXISTS products (
       id TEXT PRIMARY KEY,
       name TEXT NOT NULL,
-      sku TEXT NOT NULL UNIQUE,
-      category TEXT NOT NULL,
-      price REAL,
-      shortDescription TEXT,
-      description TEXT,
-      images TEXT,
-      colors TEXT,
-      packaging TEXT,
-      pouches TEXT,
+      baseCategory TEXT NOT NULL,
+      description TEXT NOT NULL,
+      image TEXT,
       createdAt TEXT NOT NULL,
-      updatedAt TEXT,
-      specs TEXT,
-      FOREIGN KEY(category) REFERENCES categories(name) ON UPDATE CASCADE ON DELETE RESTRICT
+      updatedAt TEXT
     );
 
     CREATE TABLE IF NOT EXISTS messages (
@@ -52,44 +44,80 @@ export function ensureSchema() {
       createdAt TEXT NOT NULL,
       isRead INTEGER NOT NULL DEFAULT 0
     );
-
-    CREATE INDEX IF NOT EXISTS idx_products_category ON products(category);
-    CREATE INDEX IF NOT EXISTS idx_products_createdAt ON products(createdAt);
-    CREATE INDEX IF NOT EXISTS idx_products_name ON products(name);
-    CREATE INDEX IF NOT EXISTS idx_products_sku ON products(sku);
-    CREATE INDEX IF NOT EXISTS idx_messages_createdAt ON messages(createdAt);
-    CREATE INDEX IF NOT EXISTS idx_messages_isRead ON messages(isRead);
   `)
+
+  // Migration: if products table has legacy columns (e.g., sku, category, price, images, colors, etc.),
+  // recreate it with the new minimal schema and DROP all old product data as requested.
+  try {
+    const cols = db.prepare('PRAGMA table_info(products)')?.all?.() || []
+    const colNames = new Set(cols.map((c) => c.name))
+    const isNewSchema = colNames.has('id') && colNames.has('name') && colNames.has('baseCategory') && colNames.has('description') && colNames.has('image') && colNames.size === 7
+    if (!isNewSchema) {
+      const migrate = db.transaction(() => {
+        db.exec(`
+          DROP TABLE IF EXISTS products;
+          CREATE TABLE products (
+            id TEXT PRIMARY KEY,
+            name TEXT NOT NULL,
+            baseCategory TEXT NOT NULL,
+            description TEXT NOT NULL,
+            image TEXT,
+            createdAt TEXT NOT NULL,
+            updatedAt TEXT
+          );
+        `)
+      })
+      migrate()
+    } else {
+      // Ensure minimal indexes
+      try { db.exec(`CREATE INDEX idx_products_baseCategory ON products(baseCategory);`) } catch {}
+      try { db.exec(`CREATE INDEX idx_products_createdAt ON products(createdAt);`) } catch {}
+      try { db.exec(`CREATE INDEX idx_products_name ON products(name);`) } catch {}
+    }
+  } catch {}
+
+  // Indexes for messages
+  try { db.exec(`CREATE INDEX idx_messages_createdAt ON messages(createdAt);`) } catch {}
+  try { db.exec(`CREATE INDEX idx_messages_isRead ON messages(isRead);`) } catch {}
 }
 
 export function parseRow(row) {
   if (!row) return null
+  let desc
+  try { desc = row.description ? JSON.parse(row.description) : null } catch { desc = null }
+  // Validate description keys to avoid empty values on frontend
+  const description = desc && typeof desc === 'object' ? {
+    size: desc.size || undefined,
+    category: desc.category || undefined,
+    finish: desc.finish || undefined,
+    details: desc.details || undefined,
+  } : undefined
   return {
-    ...row,
-    price: row.price == null ? undefined : row.price,
-    images: row.images ? JSON.parse(row.images) : [],
-    colors: row.colors ? JSON.parse(row.colors) : undefined,
-    packaging: row.packaging ? JSON.parse(row.packaging) : undefined,
-    pouches: row.pouches ? JSON.parse(row.pouches) : undefined,
-    specs: row.specs ? JSON.parse(row.specs) : undefined,
+    id: row.id,
+    sku: row.id,
+    name: row.name,
+    baseCategory: row.baseCategory,
+    description,
+    image: row.image || undefined,
+    createdAt: row.createdAt,
+    updatedAt: row.updatedAt || undefined,
   }
 }
 
 export function serializeProduct(p) {
+  // p: { id, name, baseCategory, description: {size, category, finish, details}, image, createdAt, updatedAt }
   return {
     id: p.id,
     name: p.name,
-    sku: p.sku,
-    category: p.category,
-    price: p.price ?? null,
-    shortDescription: p.shortDescription ?? null,
-    description: p.description ?? null,
-    images: p.images ? JSON.stringify(p.images) : null,
-    colors: p.colors ? JSON.stringify(p.colors) : null,
-    packaging: p.packaging ? JSON.stringify(p.packaging) : null,
-    pouches: p.pouches ? JSON.stringify(p.pouches) : null,
+    baseCategory: p.baseCategory,
+    description: JSON.stringify({
+      ...(p.description?.size ? { size: p.description.size } : {}),
+      ...(p.description?.category ? { category: p.description.category } : {}),
+      ...(p.description?.finish ? { finish: p.description.finish } : {}),
+      ...(p.description?.details ? { details: p.description.details } : {}),
+    }),
+    image: p.image ?? null,
     createdAt: p.createdAt,
     updatedAt: p.updatedAt ?? null,
-    specs: p.specs ? JSON.stringify(p.specs) : null,
   }
 }

@@ -1,15 +1,15 @@
 import { Link, useParams } from 'react-router-dom'
 import { useEffect, useState } from 'react'
-import ProductGallery from '../components/ProductGallery'
-import SpecsTable from '../components/SpecsTable'
 import type { Product } from '../types'
-import { fetchProduct } from '../lib/api'
+import { fetchProduct, fetchProducts } from '../lib/api'
 import { useToast } from '../components/ToastProvider'
+import ProductCard from '../components/ProductCard'
 
 export default function ProductDetailPage() {
   const { id } = useParams()
   const { notify } = useToast()
   const [product, setProduct] = useState<Product | null>(null)
+  const [similar, setSimilar] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [refresh, setRefresh] = useState(0)
@@ -30,7 +30,32 @@ export default function ProductDetailPage() {
       })
       .finally(() => setLoading(false))
     return () => ac.abort()
-  }, [id, refresh])
+  }, [id, refresh, notify])
+
+  useEffect(() => {
+    if (!product) return
+    const ac = new AbortController()
+    // Fetch a pool of same-category products and sample up to 4 excluding current
+    fetchProducts({ category: product.baseCategory, sort: 'DATE_NEW', page: 1, perPage: 24 }, ac.signal)
+      .then(res => {
+        const pool = res.items.filter(p => p.id !== product.id)
+        function sample<T>(arr: T[], n: number): T[] {
+          if (arr.length <= n) return arr.slice(0, n)
+          const out: T[] = []
+            , used = new Set<number>()
+          while (out.length < n) {
+            const i = Math.floor(Math.random() * arr.length)
+            if (used.has(i)) continue
+            used.add(i)
+            out.push(arr[i])
+          }
+          return out
+        }
+        setSimilar(sample(pool, 8))
+      })
+      .catch(() => {/* silent */})
+    return () => ac.abort()
+  }, [product])
 
   if (loading) {
     return <div className="text-sm text-gray-600">Loading…</div>
@@ -57,96 +82,70 @@ export default function ProductDetailPage() {
         <ol className="flex items-center gap-2">
           <li><Link to="/" className="hover:text-gray-900">Home</Link></li>
           <li aria-hidden>›</li>
-          <li><Link to={`/catalog?category=${encodeURIComponent(product.category)}`} className="hover:text-gray-900">{product.category}</Link></li>
+          <li><Link to={`/catalog?category=${encodeURIComponent(product.baseCategory)}`} className="hover:text-gray-900">{product.baseCategory}</Link></li>
           <li aria-hidden>›</li>
           <li aria-current="page" className="text-gray-900 font-medium truncate max-w-[40ch]">{product.name}</li>
         </ol>
       </nav>
 
       <div className="mt-4 grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <ProductGallery images={product.images} />
+        <div className="w-full">
+          <div className="aspect-square w-full overflow-hidden rounded-lg bg-gray-100">
+            {product.image ? (
+              <img src={product.image} alt={product.name} className="h-full w-full object-contain" />
+            ) : (
+              <div className="h-full w-full grid place-items-center text-gray-400">No image</div>
+            )}
+          </div>
+        </div>
         <div>
           <div className="flex items-start justify-between gap-3">
             <h1 className="text-2xl font-bold tracking-tight text-gray-900">{product.name}</h1>
           </div>
           <p className="mt-1 text-sm text-gray-600">SKU: {product.sku}</p>
-          {product.shortDescription && <p className="mt-3 text-gray-700">{product.shortDescription}</p>}
-
-          {/* Variants */}
-          {product.colors && product.colors.length > 0 && (
-            <section className="mt-6">
-              <h2 className="text-sm font-medium text-gray-900">Available Colors</h2>
-              <div className="mt-2 grid grid-cols-2 sm:grid-cols-3 gap-3">
-                {product.colors.map((v) => (
-                  <div key={v.sku} className="rounded border bg-white p-2">
-                    {v.image ? (
-                      <img src={v.image.url} alt={v.image.alt} className="h-24 w-full object-cover rounded" />
-                    ) : (
-                      <div className="h-24 w-full grid place-items-center text-gray-400 bg-gray-100 rounded">No image</div>
-                    )}
-                    <div className="mt-1 text-xs text-gray-700 font-medium">{v.label}</div>
-                    <div className="text-[11px] text-gray-500">SKU: {v.sku}</div>
-                  </div>
-                ))}
-              </div>
-            </section>
-          )}
-
-          {product.packaging && product.packaging.length > 0 && (
-            <section className="mt-6">
-              <h2 className="text-sm font-medium text-gray-900">Packaging</h2>
-              <div className="mt-2 grid grid-cols-2 sm:grid-cols-3 gap-3">
-                {product.packaging.map((v) => (
-                  <div key={v.sku} className="rounded border bg-white p-2">
-                    {v.image ? (
-                      <img src={v.image.url} alt={v.image.alt} className="h-24 w-full object-cover rounded" />
-                    ) : (
-                      <div className="h-24 w-full grid place-items-center text-gray-400 bg-gray-100 rounded">No image</div>
-                    )}
-                    <div className="mt-1 text-xs text-gray-700 font-medium">{v.label}</div>
-                    <div className="text-[11px] text-gray-500">SKU: {v.sku}</div>
-                  </div>
-                ))}
-              </div>
-            </section>
-          )}
-
-          {product.pouches && product.pouches.length > 0 && (
-            <section className="mt-6">
-              <h2 className="text-sm font-medium text-gray-900">Empty Pouches</h2>
-              <div className="mt-2 grid grid-cols-2 sm:grid-cols-3 gap-3">
-                {product.pouches.map((v) => (
-                  <div key={v.sku} className="rounded border bg-white p-2">
-                    {v.image ? (
-                      <img src={v.image.url} alt={v.image.alt} className="h-24 w-full object-cover rounded" />
-                    ) : (
-                      <div className="h-24 w-full grid place-items-center text-gray-400 bg-gray-100 rounded">No image</div>
-                    )}
-                    <div className="mt-1 text-xs text-gray-700 font-medium">{v.label}</div>
-                    <div className="text-[11px] text-gray-500">SKU: {v.sku}</div>
-                  </div>
-                ))}
-              </div>
-            </section>
-          )}
-
-          {product.specs && (
-            <section className="mt-6">
-              <h2 className="text-sm font-medium text-gray-900">Specifications</h2>
-              <div className="mt-2">
-                <SpecsTable specs={product.specs} />
-              </div>
-            </section>
-          )}
 
           {product.description && (
             <section className="mt-6">
-              <h2 className="text-sm font-medium text-gray-900">Description</h2>
-              <p className="mt-2 text-sm text-gray-700">{product.description}</p>
+              <h2 className="text-sm font-medium text-gray-900">Details</h2>
+              <dl className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                {product.description.size && (
+                  <div>
+                    <dt className="text-gray-500">Size</dt>
+                    <dd className="text-gray-800">{product.description.size}</dd>
+                  </div>
+                )}
+                {product.description.category && (
+                  <div>
+                    <dt className="text-gray-500">Category</dt>
+                    <dd className="text-gray-800">{product.description.category}, {product.name}</dd>
+                  </div>
+                )}
+                {product.description.finish && (
+                  <div>
+                    <dt className="text-gray-500">Finish</dt>
+                    <dd className="text-gray-800">{product.description.finish}</dd>
+                  </div>
+                )}
+                {product.description.details && (
+                  <div className="sm:col-span-2">
+                    <dt className="text-gray-500">Details</dt>
+                    <dd className="text-gray-800 whitespace-pre-wrap">{product.description.details}</dd>
+                  </div>
+                )}
+              </dl>
             </section>
           )}
         </div>
       </div>
+
+      {similar.length > 0 && (
+        <section className="mt-10">
+          <h2 className="text-lg font-semibold text-gray-900">Similar Products</h2>
+          <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {similar.map(s => <ProductCard key={s.id} product={s} />)}
+          </div>
+        </section>
+      )}
     </div>
   )
 }

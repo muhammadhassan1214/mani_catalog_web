@@ -24,7 +24,7 @@ export async function fetchCategories(signal?: AbortSignal): Promise<string[]> {
 export interface ProductsQuery {
   q?: string
   category?: string
-  sort?: 'ALPHA_ASC' | 'ALPHA_DESC' | 'DATE_NEW' | 'DATE_OLD' | 'PRICE_ASC' | 'PRICE_DESC'
+  sort?: 'ALPHA_ASC' | 'ALPHA_DESC' | 'DATE_NEW' | 'DATE_OLD'
   page?: number
   perPage?: number
 }
@@ -116,20 +116,10 @@ export async function adminDeleteMessage(password: string, id: string) {
 }
 
 export interface AdminCreateProductInput {
-  id: string
+  id: string // SKU and ID
   name: string
-  sku: string
-  category: string
-  price?: number
-  shortDescription?: string
-  description?: string
-  images: { url: string; alt: string }[]
-  colors?: any
-  packaging?: any
-  pouches?: any
-  createdAt?: string
-  updatedAt?: string
-  specs?: Record<string, string | number | boolean>
+  image?: string
+  description?: { size?: string; category?: string; finish?: string; details?: string }
 }
 
 export async function adminCreateProduct(password: string, input: AdminCreateProductInput) {

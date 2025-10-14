@@ -27,7 +27,7 @@ export default function Filters() {
       })
       .finally(() => setLoading(false))
     return () => ac.abort()
-  }, [refresh])
+  }, [refresh, notify])
 
   const setParam = (key: string, value: string) => {
     const sp = new URLSearchParams(params)

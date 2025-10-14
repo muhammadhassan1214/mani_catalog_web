@@ -129,7 +129,7 @@ Dev proxy: the Vite dev server proxies `/api` to `http://localhost:3000`. Start 
   - Response: `{ total, page, perPage, items: Product[] }`
 - GET `/api/products/:id` → `Product` or 404
 
-Product shape aligns with the frontend TypeScript `Product` interface (images/colors/packaging/pouches/specs serialized into JSON in the DB layer).
+Product shape aligns with the frontend TypeScript `Product` interface (images/packaging/pouches/specs serialized into JSON in the DB layer).
 
 ### Troubleshooting
 

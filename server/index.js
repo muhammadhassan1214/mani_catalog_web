@@ -5,10 +5,15 @@ import express from 'express'
 import cors from 'cors'
 import { db, ensureSchema, parseRow, serializeProduct } from './db.js'
 import { randomUUID } from 'node:crypto'
+import path from 'node:path'
+import fs from 'node:fs'
+import { fileURLToPath } from 'node:url'
 
 const app = express()
 const PORT = Number(process.env.PORT || 3000)
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
 app.use(cors())
 app.use(express.json({ limit: '1mb' }))
@@ -19,13 +24,12 @@ app.get('/api/health', (req, res) => {
   res.json({ ok: true, now: new Date().toISOString() })
 })
 
-// Categories
+// Categories: fixed base categories only
 app.get('/api/categories', (req, res) => {
-  const rows = db.prepare('SELECT name FROM categories ORDER BY name').all()
-  res.json(rows.map(r => r.name))
+  res.json(['BEAUTY CARE INSTRUMENTS', 'EYELASH PRODUCTS'])
 })
 
-// Products list with search/filter/sort/pagination
+// Products list with search/filter/sort/pagination (new schema)
 app.get('/api/products', (req, res) => {
   const q = typeof req.query.q === 'string' ? req.query.q.trim() : ''
   const category = typeof req.query.category === 'string' ? req.query.category : ''
@@ -36,11 +40,11 @@ app.get('/api/products', (req, res) => {
   const where = []
   const params = {}
   if (category && category !== 'ALL') {
-    where.push('category = @category')
+    where.push('baseCategory = @category')
     params.category = category
   }
   if (q) {
-    where.push('(name LIKE @q OR sku LIKE @q OR category LIKE @q OR description LIKE @q OR shortDescription LIKE @q)')
+    where.push('(name LIKE @q OR id LIKE @q OR baseCategory LIKE @q)')
     params.q = `%${q.replace(/[%_]/g, s => '\\' + s)}%`
   }
   const whereSql = where.length ? 'WHERE ' + where.join(' AND ') : ''
@@ -53,10 +57,8 @@ app.get('/api/products', (req, res) => {
       orderBy = 'ORDER BY datetime(createdAt) DESC'; break
     case 'DATE_OLD':
       orderBy = 'ORDER BY datetime(createdAt) ASC'; break
-    case 'PRICE_ASC':
-      orderBy = 'ORDER BY (price IS NULL), price ASC'; break
-    case 'PRICE_DESC':
-      orderBy = 'ORDER BY (price IS NULL), price DESC'; break
+    default:
+      orderBy = 'ORDER BY name COLLATE NOCASE ASC'; break
   }
 
   const offset = (page - 1) * perPage
@@ -139,35 +141,53 @@ app.delete('/api/admin/messages/:id', requireAdmin, (req, res) => {
   res.json({ ok: true })
 })
 
-// Admin: create product
+// Admin: create product (id=sku, baseCategory auto-derived from name)
 app.post('/api/admin/products', requireAdmin, (req, res) => {
   const p = req.body || {}
   // basic validation
-  const required = ['id', 'name', 'sku', 'category', 'images']
+  const required = ['id', 'name']
   for (const k of required) {
-    if (!(k in p)) return res.status(400).json({ error: `Missing field: ${k}` })
+    if (!(k in p) || !p[k]) return res.status(400).json({ error: `Missing field: ${k}` })
   }
-  // ensure category exists (create if missing)
-  db.prepare('INSERT OR IGNORE INTO categories (name) VALUES (?)').run(p.category)
-  // timestamps
+  // Prepare record
   const now = new Date().toISOString()
-  p.createdAt = p.createdAt || now
-  const data = serializeProduct(p)
+  const nameLc = String(p.name).toLowerCase()
+  const baseCategory = nameLc.includes('eye') ? 'EYELASH PRODUCTS' : 'BEAUTY CARE INSTRUMENTS'
+  const description = p.description && typeof p.description === 'object' ? {
+    ...(p.description.size ? { size: p.description.size } : {}),
+    ...(p.description.category ? { category: p.description.category } : {}),
+    ...(p.description.finish ? { finish: p.description.finish } : {}),
+    ...(p.description.details ? { details: p.description.details } : {}),
+  } : {}
+
+  const data = serializeProduct({
+    id: p.id,
+    name: p.name,
+    baseCategory,
+    description,
+    image: p.image || null,
+    createdAt: now,
+    updatedAt: null,
+  })
   try {
     db.prepare(`
-      INSERT INTO products (
-        id, name, sku, category, price, shortDescription, description,
-        images, colors, packaging, pouches, createdAt, updatedAt, specs
-      ) VALUES (
-        @id, @name, @sku, @category, @price, @shortDescription, @description,
-        @images, @colors, @packaging, @pouches, @createdAt, @updatedAt, @specs
-      )
+      INSERT INTO products (id, name, baseCategory, description, image, createdAt, updatedAt)
+      VALUES (@id, @name, @baseCategory, @description, @image, @createdAt, @updatedAt)
     `).run(data)
   } catch (e) {
     return res.status(400).json({ error: 'Insert failed', detail: String(e) })
   }
   res.status(201).json({ id: p.id })
 })
+
+// Static frontend (production): serve dist if present
+const distDir = path.resolve(process.cwd(), 'dist')
+if (fs.existsSync(distDir)) {
+  app.use(express.static(distDir))
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(distDir, 'index.html'))
+  })
+}
 
 app.listen(PORT, () => {
   console.log(`[server] listening on http://localhost:${PORT}`)

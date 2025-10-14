@@ -24,10 +24,10 @@ function run() {
     const insertProd = db.prepare(`
       INSERT INTO products (
         id, name, sku, category, price, shortDescription, description,
-        images, colors, packaging, pouches, createdAt, updatedAt, specs
+        images, packaging, pouches, createdAt, updatedAt, specs
       ) VALUES (
         @id, @name, @sku, @category, @price, @shortDescription, @description,
-        @images, @colors, @packaging, @pouches, @createdAt, @updatedAt, @specs
+        @images, @packaging, @pouches, @createdAt, @updatedAt, @specs
       )
     `)
 
@@ -41,4 +41,3 @@ function run() {
 }
 
 run()
-

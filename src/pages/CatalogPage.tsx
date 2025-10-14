@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { fetchProducts } from '../lib/api'
+import { fetchProducts, type ProductsQuery } from '../lib/api'
 import type { Product } from '../types'
 import ProductCard from '../components/ProductCard'
 import ProductListItem from '../components/ProductListItem'
@@ -15,11 +15,23 @@ function normalizeView(v: string | null): 'grid' | 'list' {
   return v === 'list' ? 'list' : 'grid'
 }
 
+function normalizeSort(v: string | null): ProductsQuery['sort'] {
+  switch (v) {
+    case 'ALPHA_ASC':
+    case 'ALPHA_DESC':
+    case 'DATE_NEW':
+    case 'DATE_OLD':
+      return v
+    default:
+      return 'ALPHA_ASC'
+  }
+}
+
 export default function CatalogPage() {
   const [params] = useSearchParams()
   const q = params.get('q') || ''
   const category = params.get('category') || 'ALL'
-  const sort = params.get('sort') || 'ALPHA_ASC'
+  const sort = normalizeSort(params.get('sort'))
   const view = normalizeView(params.get('view'))
   const page = Number(params.get('page') || '1')
   const perPage = Number(params.get('perPage') || '12')
@@ -41,7 +53,7 @@ export default function CatalogPage() {
     fetchProducts({
       q: query.q,
       category: query.category,
-      sort: query.sort as any,
+      sort: query.sort,
       page: query.page,
       perPage: query.perPage,
     }, ac.signal)
@@ -58,7 +70,7 @@ export default function CatalogPage() {
       })
       .finally(() => setLoading(false))
     return () => ac.abort()
-  }, [query.q, query.category, query.sort, query.page, query.perPage, refresh])
+  }, [query.q, query.category, query.sort, query.page, query.perPage, refresh, notify])
 
   return (
     <div>
