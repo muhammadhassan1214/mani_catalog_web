@@ -51,7 +51,7 @@ export default function ProductDetailPage() {
           }
           return out
         }
-        setSimilar(sample(pool, 8))
+        setSimilar(sample(pool, 4))
       })
       .catch(() => {/* silent */})
     return () => ac.abort()
@@ -90,7 +90,7 @@ export default function ProductDetailPage() {
 
       <div className="mt-4 grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div className="w-full">
-          <div className="aspect-square w-full overflow-hidden rounded-lg bg-gray-100">
+          <div className="aspect-square w-full overflow-hidden rounded-lg bg-white p-3 ring-1 ring-gray-100">
             {product.image ? (
               <img src={product.image} alt={product.name} className="h-full w-full object-contain" />
             ) : (

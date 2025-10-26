@@ -6,6 +6,7 @@ import {
   adminDeleteMessage,
   adminListMessages,
   adminSetMessageRead,
+  adminImportCsv,
   type AdminMessage,
 } from '../lib/api'
 
@@ -37,6 +38,12 @@ export default function AdminPage() {
     desc_finish: '',
     desc_details: '',
   })
+
+  // CSV import state
+  const [csvText, setCsvText] = useState('')
+  const [csvFile, setCsvFile] = useState<File | null>(null)
+  const [skipExisting, setSkipExisting] = useState(true)
+  const [resetBefore, setResetBefore] = useState(false)
 
   const canCreate = useMemo(() => prod.id && prod.name, [prod.id, prod.name])
 
@@ -98,6 +105,8 @@ export default function AdminPage() {
     }
   }
 
+  // Login view with candidate password; do not store until validated
+  const [candidatePwd, setCandidatePwd] = useState('')
   if (!pwd || authError) {
     return (
       <div>
@@ -105,20 +114,32 @@ export default function AdminPage() {
         <p className="mt-1 text-sm text-gray-600">Enter admin password to continue.</p>
         <form
           className="mt-4 flex items-center gap-2"
-          onSubmit={(e) => {
+          autoComplete="off"
+          onSubmit={async (e) => {
             e.preventDefault()
-            setRefresh((x) => x + 1)
+            setLoading(true)
+            setAuthError(null)
+            try {
+              await adminListMessages(candidatePwd, 'all')
+              setPwd(candidatePwd) // save only after successful validation
+              setCandidatePwd('')
+            } catch (err: any) {
+              setAuthError(err?.message === 'Unauthorized' ? 'Invalid password' : 'Login failed')
+            } finally {
+              setLoading(false)
+            }
           }}
         >
           <input
             type="password"
             placeholder="Password"
             className="rounded-md border border-gray-300 px-3 py-2 text-sm"
-            value={pwd}
-            onChange={(e) => setPwd(e.target.value)}
+            value={candidatePwd}
+            onChange={(e) => setCandidatePwd(e.target.value)}
+            autoComplete="new-password"
           />
-          <button className="rounded-md bg-brand-700 text-white text-sm px-3 py-2">
-            Continue
+          <button className="rounded-md bg-brand-700 text-white text-sm px-3 py-2" disabled={loading}>
+            {loading ? 'Checking…' : 'Continue'}
           </button>
         </form>
         {authError && <div className="mt-2 text-sm text-red-600">{authError}</div>}
@@ -198,7 +219,7 @@ export default function AdminPage() {
                         Mark {m.isRead ? 'Unread' : 'Read'}
                       </button>
                       <button
-                        onClick={() => onDelete(m.id)}
+                        onClick={() => { if (window.confirm('Delete this message permanently?')) onDelete(m.id) }}
                         className="text-xs rounded-md border px-2 py-1 border-red-300 text-red-700 hover:bg-red-50"
                       >
                         Delete
@@ -270,6 +291,63 @@ export default function AdminPage() {
           <p className="mt-2 text-xs text-gray-500">
             Note: Base category is derived automatically from the name.
           </p>
+
+          <div className="mt-8">
+            <h3 className="text-sm font-semibold text-gray-900">Import from CSV</h3>
+            <div className="mt-2 space-y-2 rounded-md border bg-white p-3">
+              <label className="block text-sm text-gray-700">Upload file</label>
+              <input
+                type="file"
+                accept=".csv,text/csv"
+                onChange={(e) => setCsvFile(e.currentTarget.files?.[0] || null)}
+                className="block w-full text-sm"
+              />
+              <div className="text-xs text-gray-500">or paste CSV content below</div>
+              <textarea
+                rows={5}
+                className="w-full rounded-md border px-3 py-2 text-sm"
+                placeholder={'Name,SKU,Image URL, ,{"size":"...","category":"...","finish":"...","details":"..."}'}
+                value={csvText}
+                onChange={(e) => setCsvText(e.target.value)}
+              />
+              <div className="flex items-center gap-3">
+                <label className="inline-flex items-center gap-2 text-sm text-gray-700">
+                  <input type="checkbox" checked={skipExisting} onChange={(e) => setSkipExisting(e.target.checked)} />
+                  Skip existing SKUs
+                </label>
+                <label className="inline-flex items-center gap-2 text-sm text-gray-700">
+                  <input type="checkbox" checked={resetBefore} onChange={(e) => setResetBefore(e.target.checked)} />
+                  Reset products before import
+                </label>
+              </div>
+              <div>
+                <button
+                  className="rounded-md bg-brand-700 text-white text-sm px-3 py-2"
+                  onClick={async () => {
+                    try {
+                      let csv = csvText.trim()
+                      if (!csv && csvFile) {
+                        csv = await csvFile.text()
+                      }
+                      if (!csv) {
+                        notify('Please choose a CSV file or paste CSV text', 'error')
+                        return
+                      }
+                      const res = await adminImportCsv(pwd, csv, { reset: resetBefore, skipExisting })
+                      alert(`Import finished\nInserted: ${res.inserted}\nSkipped: ${res.skipped}${res.duplicates.length ? `\nDuplicates: ${res.duplicates.slice(0, 20).join(', ')}${res.duplicates.length > 20 ? '…' : ''}` : ''}`)
+                      setCsvFile(null)
+                      setCsvText('')
+                      setRefresh((x) => x + 1)
+                    } catch (e) {
+                      notify('CSV import failed', 'error')
+                    }
+                  }}
+                >
+                  Import CSV
+                </button>
+              </div>
+            </div>
+          </div>
         </section>
       </div>
     </div>

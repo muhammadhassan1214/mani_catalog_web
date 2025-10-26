@@ -110,7 +110,7 @@ export default function AboutPage() {
             <span className="absolute left-0 top-2 h-2 w-2 rounded-full bg-brand-700" aria-hidden="true" />
             <div className="rounded-lg border bg-white p-4 shadow-sm">
               <p className="text-sm font-medium text-gray-900">2023 — Global distribution</p>
-              <p className="mt-1 text-sm text-gray-700">Established logistics partnerships across 40+ countries.</p>
+              <p className="mt-1 text-sm text-gray-700">Established logistics partnerships across 10+ countries.</p>
             </div>
           </li>
         </ol>

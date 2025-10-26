@@ -4,10 +4,10 @@ import type { Product } from '../types'
 export default function ProductListItem({ product }: { product: Product }) {
   const img = product.image
   return (
-    <article className="flex gap-4 rounded-lg border bg-white p-3 shadow-sm hover:shadow-md transition-shadow">
-      <Link to={`/product/${product.id}`} className="flex-shrink-0 w-40 h-28 overflow-hidden rounded-md bg-gray-100">
+    <article className="flex gap-4 rounded-lg border bg-white p-3 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-transform">
+      <Link to={`/product/${product.id}`} className="flex-shrink-0 w-40 h-28 overflow-hidden rounded-md bg-white ring-1 ring-gray-100">
         {img ? (
-          <img src={img} alt={product.name} className="h-full w-full object-cover" />
+          <img src={img} alt={product.name} className="h-full w-full object-contain bg-white" />
         ) : (
           <div className="h-full w-full grid place-items-center text-gray-400">No image</div>
         )}

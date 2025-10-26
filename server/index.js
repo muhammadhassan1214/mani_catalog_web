@@ -8,6 +8,7 @@ import { randomUUID } from 'node:crypto'
 import path from 'node:path'
 import fs from 'node:fs'
 import { fileURLToPath } from 'node:url'
+import { parse as csvParseSync } from 'csv-parse/sync'
 
 const app = express()
 const PORT = Number(process.env.PORT || 3000)
@@ -178,6 +179,107 @@ app.post('/api/admin/products', requireAdmin, (req, res) => {
     return res.status(400).json({ error: 'Insert failed', detail: String(e) })
   }
   res.status(201).json({ id: p.id })
+})
+
+function deriveBaseCategory(name) {
+  const lc = String(name || '').toLowerCase()
+  return lc.includes('eye') ? 'EYELASH PRODUCTS' : 'BEAUTY CARE INSTRUMENTS'
+}
+
+function sanitizeDescription(obj) {
+  if (!obj || typeof obj !== 'object') return {}
+  const out = {}
+  if (obj.size) out.size = String(obj.size)
+  if (obj.category) out.category = String(obj.category)
+  if (obj.finish) out.finish = String(obj.finish)
+  if (obj.details) out.details = String(obj.details)
+  return out
+}
+
+// Admin: import products from CSV (content uploaded in request body)
+app.post('/api/admin/products/import', requireAdmin, (req, res) => {
+  const { csv, reset = false, skipExisting = true } = req.body || {}
+  if (typeof csv !== 'string' || !csv.trim()) {
+    return res.status(400).json({ error: 'CSV string required' })
+  }
+  let rows
+  try {
+    rows = csvParseSync(csv, { skip_empty_lines: true })
+  } catch (e) {
+    return res.status(400).json({ error: 'CSV parse failed', detail: String(e) })
+  }
+  if (!Array.isArray(rows) || rows.length === 0) {
+    return res.json({ inserted: 0, skipped: 0, duplicates: [] })
+  }
+  const first = rows[0]
+  const headerPresent = Array.isArray(first) && first.join(',').toLowerCase().includes('name') && first.join(',').toLowerCase().includes('sku')
+  const startIndex = headerPresent ? 1 : 0
+
+  let inserted = 0
+  let skipped = 0
+  const duplicates = []
+
+  try {
+    if (reset) {
+      db.prepare('DELETE FROM products').run()
+    }
+    const selectOne = db.prepare('SELECT 1 FROM products WHERE id = ?')
+    const insertStmt = db.prepare(`
+      INSERT INTO products (id, name, baseCategory, description, image, createdAt, updatedAt)
+      VALUES (@id, @name, @baseCategory, @description, @image, @createdAt, @updatedAt)
+    `)
+
+    const nowIso = new Date().toISOString()
+    for (let i = startIndex; i < rows.length; i++) {
+      const row = rows[i]
+      if (!Array.isArray(row)) continue
+      const name = row[0]
+      const sku = row[1]
+      const image = row[2] || null
+      const descStr = row[4] || ''
+      if (!name || !sku) continue
+
+      const exists = !!selectOne.get(String(sku))
+      if (exists && skipExisting) {
+        skipped++
+        duplicates.push(String(sku))
+        continue
+      }
+
+      let desc
+      try { desc = JSON.parse(descStr) } catch { desc = {} }
+      const description = sanitizeDescription(desc)
+      const baseCategory = deriveBaseCategory(name)
+      const data = serializeProduct({
+        id: String(sku),
+        name: String(name),
+        baseCategory,
+        description,
+        image: image ? String(image) : null,
+        createdAt: nowIso,
+        updatedAt: null,
+      })
+
+      if (exists) {
+        // If not skipping existing, still skip per requirements
+        skipped++
+        duplicates.push(String(sku))
+      } else {
+        try {
+          insertStmt.run(data)
+          inserted++
+        } catch {
+          // On any insertion error, treat as skipped
+          skipped++
+          duplicates.push(String(sku))
+        }
+      }
+    }
+  } catch (e) {
+    return res.status(500).json({ error: 'Import failed', detail: String(e) })
+  }
+
+  res.json({ inserted, skipped, duplicates })
 })
 
 // Static frontend (production): serve dist if present

@@ -17,7 +17,7 @@ function Header() {
   }
 
   return (
-    <header className="border-b bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60 sticky top-0 z-40">
+    <header className="border-b bg-white/70 backdrop-blur supports-[backdrop-filter]:bg-white/60 sticky top-0 z-40 shadow-sm">
       <div className="container-safe flex items-center justify-between py-3">
         <Link to="/" className="flex items-center gap-2 group" aria-label="Go to homepage">
           <Boxes className="size-7 text-brand-700 group-hover:text-brand-800" aria-hidden="true" />
@@ -26,11 +26,24 @@ function Header() {
             <div className="text-xs text-gray-500">Manufacturing Products</div>
           </div>
         </Link>
-        <nav aria-label="Main" className="hidden sm:flex items-center gap-6">
-          <NavLink to="/" className={({isActive}) => `text-sm font-medium ${isActive ? 'text-brand-700' : 'text-gray-700 hover:text-gray-900'}`}>Home</NavLink>
-          <NavLink to="/about" className={({isActive}) => `text-sm font-medium ${isActive ? 'text-brand-700' : 'text-gray-700 hover:text-gray-900'}`}>About</NavLink>
-          <NavLink to="/contact" className={({isActive}) => `text-sm font-medium ${isActive ? 'text-brand-700' : 'text-gray-700 hover:text-gray-900'}`}>Contact</NavLink>
-          <NavLink to="/catalog" className={({isActive}) => `text-sm font-medium ${isActive ? 'text-brand-700' : 'text-gray-700 hover:text-gray-900'}`}>Catalog</NavLink>
+        <nav aria-label="Main" className="hidden sm:flex items-center gap-1">
+          {[
+            { to: '/', label: 'Home' },
+            { to: '/about', label: 'About' },
+            { to: '/contact', label: 'Contact' },
+            { to: '/catalog', label: 'Catalog' },
+          ].map(link => (
+            <NavLink
+              key={link.to}
+              to={link.to}
+              className={({isActive}) => [
+                'text-sm font-medium px-3 py-2 rounded-md transition-colors',
+                isActive ? 'text-brand-800 bg-brand-50' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'
+              ].join(' ')}
+            >
+              {link.label}
+            </NavLink>
+          ))}
         </nav>
         <form onSubmit={onSubmit} role="search" className="hidden md:flex items-center gap-2 w-1/3" aria-label="Site-wide search">
           <label htmlFor="q" className="sr-only">Search products</label>
@@ -54,7 +67,7 @@ function Footer() {
   }
 
   return (
-    <footer className="border-t bg-white">
+    <footer className="border-t bg-white/80">
       <div className="container-safe py-8 text-sm text-gray-600 flex flex-col sm:flex-row items-center justify-between gap-3">
         <p>© {new Date().getFullYear()} Alisha Beauties Catalog. All rights reserved.</p>
         <nav className="flex items-center gap-4" aria-label="Footer">
@@ -81,7 +94,7 @@ export default function App() {
   }
 
   return (
-    <div id="top" className="min-h-screen flex flex-col bg-gray-50">
+    <div id="top" className="min-h-screen flex flex-col bg-[radial-gradient(60%_60%_at_50%_0%,var(--color-brand-50),white)]">
       <button onClick={skipToContent} className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 bg-white text-gray-900 px-3 py-2 rounded shadow">Skip to content</button>
       <Header />
       <main id="main" tabIndex={-1} className="flex-1">

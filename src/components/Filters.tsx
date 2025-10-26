@@ -45,7 +45,11 @@ export default function Filters() {
     <div className="flex flex-wrap items-center gap-3">
       <label className="text-sm text-gray-700 inline-flex items-center gap-2">
         Category
-        <select value={category} onChange={(e) => setParam('category', e.target.value)} className="rounded-md border border-gray-300 bg-white px-2 py-1 text-sm shadow-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
+        <select
+          value={category}
+          onChange={(e) => setParam('category', e.target.value)}
+          className="rounded-md bg-white px-2 py-1 text-sm shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-brand-500"
+        >
           <option value="ALL">All</option>
           {loading ? (
             <option disabled>Loading…</option>
@@ -59,7 +63,7 @@ export default function Filters() {
         </select>
       </label>
       {error && (
-        <button onClick={retry} className="text-sm rounded-md border px-2 py-1 border-gray-300 text-gray-700 hover:bg-gray-50">Retry</button>
+        <button onClick={retry} className="text-sm rounded-md bg-white px-2 py-1 ring-1 ring-gray-300 text-gray-700 hover:bg-gray-50">Retry</button>
       )}
     </div>
   )

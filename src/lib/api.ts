@@ -132,3 +132,20 @@ export async function adminCreateProduct(password: string, input: AdminCreatePro
   if (!res.ok) throw new Error(`Failed to create product: ${res.status}`)
   return res.json() as Promise<{ id: string }>
 }
+
+export interface AdminImportCsvResult {
+  inserted: number
+  skipped: number
+  duplicates: string[]
+}
+
+export async function adminImportCsv(password: string, csv: string, opts?: { reset?: boolean; skipExisting?: boolean }) {
+  const res = await fetch(`${BASE}/api/admin/products/import`, {
+    method: 'POST',
+    headers: adminHeaders(password),
+    body: JSON.stringify({ csv, reset: opts?.reset ?? false, skipExisting: opts?.skipExisting ?? true }),
+  })
+  if (res.status === 401) throw new Error('Unauthorized')
+  if (!res.ok) throw new Error(`Failed to import CSV: ${res.status}`)
+  return res.json() as Promise<AdminImportCsvResult>
+}

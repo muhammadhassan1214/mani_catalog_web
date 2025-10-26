@@ -42,7 +42,7 @@ export default function HomePage() {
 
   return (
     <div>
-      <section className="rounded-xl bg-gradient-to-br from-brand-50 to-white border p-6 sm:p-10">
+      <section className="rounded-2xl bg-gradient-to-br from-brand-50 via-white to-white border p-6 sm:p-10 shadow-sm">
         <div className="max-w-3xl">
           <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-gray-900">Professional Product Catalog</h1>
           <p className="mt-3 text-lg text-gray-600">Explore our manufacturing catalog across Beauty Care and Eyelash categories.</p>
@@ -60,9 +60,9 @@ export default function HomePage() {
         ) : (
           <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {categories.map((c) => (
-              <Link key={c} to={`/catalog?category=${encodeURIComponent(c)}`} className="rounded-lg border bg-white p-4 shadow-sm hover:shadow">
-                <div className="text-sm font-medium text-gray-900">{c}</div>
-                <div className="mt-1 text-xs text-gray-500">Explore products →</div>
+              <Link key={c} to={`/catalog?category=${encodeURIComponent(c)}`} className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
+                <div className="text-sm font-semibold text-gray-900">{c}</div>
+                <div className="mt-1 text-xs text-brand-700">Explore products →</div>
               </Link>
             ))}
           </div>
